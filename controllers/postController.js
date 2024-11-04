@@ -55,12 +55,25 @@ const getPostById = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
   const { title, content, headerImage, categories } = req.body;
   const post = await Post.findById(req.params.id);
-
+ 
   if (post && post.author.toString() === req.user._id.toString()) {
     post.title = title || post.title;
     post.content = content || post.content;
     post.headerImage = headerImage || post.headerImage;
     post.categories = categories || post.categories;
+
+    if (req.file) {
+      try {
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: 'whisperedEmbraces/images',
+        });
+        post.headerImage = result.secure_url;
+        fs.unlinkSync(req.file.path);
+      } catch (error) {
+        res.status(500);
+        throw new Error('Image upload to Cloudinary failed');
+      }
+    }
 
     const updatedPost = await post.save();
     res.status(200).json(updatedPost);

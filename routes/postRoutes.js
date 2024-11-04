@@ -8,6 +8,6 @@ const router = express.Router();
 
 router.route('/').get(getPosts).post(protect, upload.single('headerImage'), createPost);
 
-router.route('/:id').get(getPostById).put(protect, updatePost).delete(protect, deletePost);
+router.route('/:id').get(getPostById).put(protect, upload.single('headerImage'), updatePost).delete(protect, deletePost);
 
 export default router;
