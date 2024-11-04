@@ -63,6 +63,30 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 });
 
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.username = req.body.username || user.username;
+    user.email = req.body.email || user.email;
+    
+    if (req.body.newPassword) {
+      user.password = req.body.newPassword;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
 
 
-  export { registerUser, loginUser, logoutUser };
+
+  export { registerUser, loginUser, logoutUser, updateUserProfile };
